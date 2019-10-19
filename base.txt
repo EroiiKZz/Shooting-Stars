@@ -1,0 +1,45 @@
+Mini Projet 1 : Shooting Stars | Liste des tâches
+
+Gérer temps à la fin
+Créer la grid 1000x1000
+Joueurs créent planètes
+	Check nom planète et coordonées
+		Si coordonées existe déjà
+	Redemander autre coordonées
+		Si nom existe déjà
+	Redemande nom
+	Déf nom
+	Déf coordonées
+	Déf ressources entre 5 et 20
+
+Def get_info_planet
+	Get ressources
+	Get position
+	Get name
+
+Def get_info_vaisseau
+	Get Etat
+	Get Speed
+	Get position
+
+Définir ordre joueurs aléatoire (Aléatoire)
+Fonction créer vaisseau
+	Définir nom
+		Si nom existe déjà
+			Redemander nom
+	Définir vitesse = 1
+	Définir Etat = 1
+Déf déplacement
+	Si Etat = 1
+		Continuer
+	Check vitesse 
+	Calcul vitesse
+	Calcul temps //
+	Sinon (Etat = 0)
+		Demander 1 ressource réparation
+			Réparer
+
+		Si pas ressources = 0
+	Print Game Over
+
+
