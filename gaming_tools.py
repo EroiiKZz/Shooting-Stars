@@ -1,462 +1,163 @@
-"""This module implements basic gaming operations.  These
-functions should be used to create higher level operations.
-In particular, they should NOT be directly used by players."""
+# -*- coding: utf-8 -*-
+import gaming_tools as gt
+import random
+import time
 
 
-import os, pickle, random
-
-
-# === game management functions ===
-def reset_game():
-    """Remove all planets and ships."""
-    
-    if os.path.exists('game.db'):
-        os.remove('game.db')
-
-
-# === database management (do not use outside of API) ===
-def _load_game_db():
-    """Loads the game database.
-    
-    Returns
-    -------
-    game_db: contains all game information (dict)
-    
-    Notes
-    -----
-    If no database exists, an empty one is automatically created.
+def restart_game():
+    """Load game.db, reset the game and add base planets
+    Aldebaran and Epislon Aurigae.
     
     """
-    
-    try:
-        fd = open('game.db', 'rb')
-        game_db = pickle.load(fd)
-        fd.close()
-    except:
-        game_db =  {'planets':{},
-                    'ships':{}}
-
-    return game_db
+    gt._load_game_db()
+    gt.reset_game()
+    gt.add_new_planet('Aldebaran',0)
+    gt.add_new_planet('Epsilon Aurigae',0)
+    gt.set_planet_location('Aldebaran',0,0)
+    gt.set_planet_location('Epsilon Aurigae',1000,1000)
 
 
-def _dump_game_db(game_db):
-    """Dumps the game database.
-    
-    Parameters
-    -------
-    game_db: contains all game information (dict)
-    
-    """
-    
-    fd = open('game.db', 'wb')
-    pickle.dump(game_db, fd)
-    fd.close()
-
-
-
-# === planet management functions ===
-def planet_exists(planet):
-    """Tells whether a planet already exists or not.
-    
-    Parameters
-    ----------
-    planet: planet name (str)
-    
-    Returns
-    -------
-    result: True if planet already exists, False otherwise (bool)
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    return planet in game_db['planets']
-    
-    
-def add_new_planet(planet, resources):
-    """Adds a new planet to the game.
-        
-    Parameters
-    ----------
-    planet: planet name (str)
-    resources: available resources (int)
-
-    Raises
-    ------
-    ValueError: if there already is a planet with the same name
-    ValueError: if resources is strictly negative
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if planet_exists(planet):
-        raise ValueError('planet %s already exists' % planet)
-    if resources < 0:
-        raise ValueError('resources cannot be negative (resources = %d)' % resources)
-
-    game_db['planets'][planet] = {'resources':resources}
-    
-    _dump_game_db(game_db)
-
-
-def set_planet_location(planet, coord_x, coord_y):
-    """Places a planet on the board.
-        
-    Parameters
-    ----------
-    planet: planet name (str)
-    coord_x: x coordinate of the planet (int)
-    coord_y: y coordinate of the planet (int)
-        
-    Raises
-    ------
-    ValueError: if the planet does not exist
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if not planet_exists(planet):
-        raise ValueError('planet %s does not exist' % planet)
-
-    game_db['planets'][planet]['location'] = (coord_x, coord_y)
-    
-    _dump_game_db(game_db)
-    
-
-def get_planet_location(planet):
-    """Returns the location of a planet.
-        
-    Parameters
-    ----------
-    planet: planet name (str)
-    
-    Returns
-    -------
-    coord_x: x coordinate of the planet (int)
-    coord_y: y coordinate of the planet (int)
-        
-    Raises
-    ------
-    ValueError: if the planet does not exist
-    ValueError: if the planet is not yet placed on the board
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if not planet_exists(planet):
-        raise ValueError('planet %s does not exist' % planet)
-    if 'location' not in game_db['planets'][planet]:
-        raise ValueError('planet %s is not yet placed on a planet' % planet)
-    
-    return game_db['planets'][planet]['location']
-    
-    
-def set_planet_resources(planet, resources):
-    """Changes the available resources of a planet.
-        
-    Parameters
-    ----------
-    planet: planet name (str)
-    resources: available resources (int)
-    
-    Raises
-    ------
-    ValueError: if the planet does not exist
-    ValueError: if resources is strictly negative
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if not planet_exists(planet):
-        raise ValueError('planet %s does not exist' % planet)
-    if resources < 0:
-        raise ValueError('resources cannot be negative (resources = %d)' % resources)
-    
-    game_db['planets'][planet]['resources'] = resources
-    
-    _dump_game_db(game_db)
-
-
-def get_planet_resources(planet):
-    """Returns the available resources of a planet.
-    
-    Parameters
-    ----------
-    planet: planet name (str)
-    
-    Returns
-    -------
-    resources: available resources (int)
-    
-    Raises
-    ------
-    ValueError: if the planet does not exist
-   
-    """
-    
-    game_db = _load_game_db()
-
-    if not planet_exists(planet):
-        raise ValueError('planet %s does not exist' % planet)
-
-    return game_db['planets'][planet]['resources']
-    
-
-
-# === ship management functions ===
-def ship_exists(ship):
-    """Tells whether a ship already exists or not.
+def create_ship(ship, planet='Aldebaran'):
+    """Create a ship on Aldebaran
     
     Parameters
     ----------
     ship: ship name (str)
+
+    """
+    if gt.ship_exists(ship):
+    # If the ship already exists
+        return 'This ship already exists'
+    else:
+        gt.add_new_ship(ship, speed=1, broken=0)
+        gt.set_ship_location(ship,planet)
+        gt.set_when_ship_is_ready(ship,time_stamp=0)
+
+def create_planet(planet, coord_x, coord_y):
+    """Create a planet
     
-    Returns
-    -------
-    result: True if ship already exists, False otherwise (bool)
+    Parameters
+    ----------
+    planet: planet name (str)
+    coord_x: X coordinate
+    coord_y: Y coordinate
+
+    """
+    if gt.planet_exists(planet):
+    # If the planet already exists
+        return 'This planet already exists'
+    else:
+     gt.add_new_planet(planet, random.randint(5, 20))
+     gt.set_planet_location(planet,coord_x,coord_y)
+
+
+def gen_broken():
+    """Create a number between 1 and 3
+    to randomize if ship is broken or not
     
     """
+    randomnb = random.randit(1,3)
+    return randomnb
+
+def broken_display(ship):
+    """Simply display text and not 1 or 0
+    when user checks ship status for broken
+
+    """
+    if gt.is_ship_broken(ship) == True:
+    #If the ship is broken
+        return "Yes"
+    else:
+        return "No"
+
+def time_check(ship):
+    if gt.get_when_ship_is_ready(ship) <= time.time():
+        return 'The ship is ready'
+    else: 
+        return 'The ship will be ready in: ',gt.get_when_ship_is_ready(ship)-time.time(), ' seconds'
+
+def get_status_ship(ship):  
+    """Get status of a ship
     
-    game_db = _load_game_db()
-    
-    return ship in game_db['ships']
-    
-    
-def add_new_ship(ship, speed, broken):
-    """Adds a new ship to the game.
-        
     Parameters
     ----------
     ship: ship name (str)
+
+    """    
+    return 'The ship is on: ', gt.get_ship_location(ship), 'Its speed is : ', gt.get_ship_speed(ship), 'Does it need repairs ?: ', broken_display(ship), time_check(ship)
+
+def get_status_planet(planet):
+    """Get status of a planet
+    
+    Parameters
+    ----------
+    planet: planet name (str)
+
+    """
+    return 'Location: ', gt.get_planet_location(planet), 'Resources: ', gt.get_planet_resources(planet)
+    if not gt.planet_exists(planet):
+    # If the planet does not exist
+        return 'This planet does not exist.'
+
+def travel(ship,planet,speed):
+    """Make the ship travel to another planet.
+    
+    Parameters
+    ----------
+    ship: ship name (str)
+    planet: planet name(str)
     speed: ship speed (int)
-    broken: is ship broken (bool)
-    
-    Raises
-    ------
-    ValueError: if there already is a ship with the same name
-    ValueError: if speed is strictly negative
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if ship_exists(ship):
-        raise ValueError('ship %s already exists' % ship)
-    if speed < 0:
-        raise ValueError('speed cannot be speed (speed = %d)' % speed)
-    
-    game_db['ships'][ship] = {'speed':speed, 'broken':broken}
-    
-    _dump_game_db(game_db)
-    
-    
-def set_ship_location(ship, planet):
-    """Places a  ship on a planet.
-        
-    Parameters
-    ----------
-    ship: ship name (str)
-    planet: planet name (str)
-        
-    Raises
-    ------
-    ValueError: if the ship does not exist
-    ValueError: if the planet does not exist
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    if not planet_exists(planet):
-        raise ValueError('planet %s does not exist' % ship)
 
-    game_db['ships'][ship]['planet'] = planet
-    
-    _dump_game_db(game_db)
-    
-
-def get_ship_location(ship):
-    """Returns the name of the planet where the ship is.
-        
-    Parameters
-    ----------
-    ship: ship name (str)
-        
-    Raises
-    ------
-    ValueError: if the ship does not exist
-    ValueError: if the ship is not yet placed on a planet
-    
     """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    if 'planet' not in game_db['ships'][ship]:
-        raise ValueError('ship %s is not yet placed on a planet' % ship)
-    
-    return game_db['ships'][ship]['planet']
+    gt.set_ship_location(ship,planet)
 
 
-def set_ship_speed(ship, speed):
-    """Modifies the speed of a ship.
-        
-    Parameters
-    ----------
-    ship: ship name (str)
-    speed: ship speed (int)
-    
-    Raises
-    ------
-    ValueError: if the ship does not exist
-    ValueError: if speed is strictly negative
-     
-    """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    if speed < 0:
-        raise ValueError('speed cannot be negative (speed = %d)' % speed)
-    
-    game_db['ships'][ship]['speed']  = speed
-    
-    _dump_game_db(game_db)
-    
-    
-def get_ship_speed(ship):
-    """Returns the speed of a ship.
-        
-    Parameters
-    ----------
-    ship: ship name (str)
-    
-    Returns
-    -------
-    speed: ship speed (int)
-    
-    Raises
-    ------
-    ValueError: if the ship does not exist
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    
-    return game_db['ships'][ship]['speed'] 
-    
-    
-def set_ship_broken(ship, broken):
-    """Sets a ship as broken or not.
-        
-    Parameters
-    ----------
-    ship: ship name (str)
-    broken: is ship broken (bool)
-        
-    Raises
-    ------
-    ValueError: if the ship does not exist
-     
-    """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    
-    game_db['ships'][ship]['broken']  = broken
-    
-    _dump_game_db(game_db)
 
-        
-def is_ship_broken(ship):
-    """Tells whether a ship is broken or not.
-   
+def repair(ship):
+    """Repair the ship if it is broken and 
+    there are enough resources on the planet.
+    
     Parameters
     ----------
     ship: ship name (str)
-    
-    Returns
-    -------
-    result: True if ship is broken, False otherwise (bool)
-    
-    Raises
-    ------
-    ValueError: if the ship does not exist
-    
-    """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    
-    return game_db['ships'][ship]['broken']
-    
 
-def set_when_ship_is_ready(ship, time_stamp):
-    """Stores when the ship will be ready after its last action.
-        
-    Parameters
-    ----------
-    ship: ship name (str)
-    time_stamp: when the ship is available (float)
-        
-    Raises
-    ------
-    ValueError: if the ship does not exist
-    ValueError: if time_stamp is strictly negative
-     
     """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    if time_stamp < 0:
-        raise ValueError('time stamp cannot be negative (time_stamp = %d)' % time_stamp)
-    
-    game_db['ships'][ship]['availability']  = time_stamp
-    
-    _dump_game_db(game_db)
+    if gt.get_when_ship_is_ready(ship) <= time.time():
+    # If time is smaller or equal than time of the ship
+        if gt.is_ship_broken(ship) == True: 
+        # If ship is broken
+            if gt.get_planet_resources(gt.get_ship_location(ship)) >= 3:
+            # If resources on the planet is greater or equal to 3
+                gt.set_planet_resources(gt.get_ship_location(ship), gt.get_planet_resources(gt.get_ship_location(ship)) -3 )
+                gt.set_ship_broken(ship,0)
+                gt.set_when_ship_is_ready(ship,time.time()+60)
+                return 'Ship in repair.', time_check(ship)
+            else: 
+                return 'Not enough resources on the planet to repair'
+        else:
+            return 'This ship is not broken'
+    else:
+        return 'Your ship is not ready.'
 
-        
-def get_when_ship_is_ready(ship):
-    """Returns when the ship will be ready after its last action.
-        
+def upgrade(ship,nbup):
+    """Upgrade a ship with the number of upgrade 
+    chosen by the user
+    
     Parameters
     ----------
     ship: ship name (str)
-    
-    Returns
-    -------
-    time_stamp: when the ship is available (float)
-    
-    Raises
-    ------
-    ValueError: if the ship does not exist    
-    
-    Notes
-    -----
-    If the ship never made any action, time_stamp is 0.
-        
+    nbup: number of upgrade to apply (int)
+
     """
-    
-    game_db = _load_game_db()
-    
-    if not ship_exists(ship):
-        raise ValueError('ship %s does not exist' % ship)
-    
-    return game_db['ships'][ship]['availability'] 
+    if gt.get_when_ship_is_ready(ship) <= time.time():
+    # If time is smaller or equal than time of the ship
+        if gt.get_planet_resources(gt.get_ship_location(ship)) >= 1:
+        # If the resources on the planet is greater or equal to 1
+            gt.set_ship_speed(ship,gt.get_ship_speed(ship) + 3)
+            gt.set_planet_resources(gt.get_ship_location(ship), gt.get_planet_resources(gt.get_ship_location(ship)) - (nbup) )
+            gt.set_when_ship_is_ready(ship,time.time()+40*nbup**2)
+            return time_check(ship)
+        else:
+            return 'Not enough resources on the planet to upgrade'
+    else:
+        return 'Your ship is not ready.'
