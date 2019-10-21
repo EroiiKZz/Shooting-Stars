@@ -3,13 +3,14 @@ import gaming_tools as gt
 import random
 import time
 
+#Load the main Database File
+gt._load_game_db()
 
 def restart_game():
     """Load game.db, reset the game and add base planets
     Aldebaran and Epislon Aurigae.
     
     """
-    gt._load_game_db()
     gt.reset_game()
     gt.add_new_planet('Aldebaran',0)
     gt.add_new_planet('Epsilon Aurigae',0)
@@ -121,6 +122,9 @@ def travel(ship,planet,speed):
         gt.set_ship_location(ship,planet)
     else:
         return 'This ship is broken.'
+
+
+######### HERE ##########
 
 
 
