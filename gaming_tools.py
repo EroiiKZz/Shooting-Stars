@@ -99,6 +99,9 @@ def get_status_planet(planet):
     # If the planet does not exist
         return 'This planet does not exist.'
 
+def math_travel(ship,planet,speed):
+    
+
 def travel(ship,planet,speed):
     """Make the ship travel to another planet.
     
@@ -109,7 +112,9 @@ def travel(ship,planet,speed):
     speed: ship speed (int)
 
     """
-    gt.set_ship_location(ship,planet)
+    if gt.is_ship_broken(ship) == False:
+        gt.set_ship_location(ship,planet)
+
 
 
 
