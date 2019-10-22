@@ -34,6 +34,11 @@ def create_ship(ship, planet='Aldebaran'):
         gt.add_new_ship(ship, speed=1, broken=0)
         gt.set_ship_location(ship,planet)
         gt.set_when_ship_is_ready(ship,time_stamp=0)
+        return 'Ship '+ (ship) +' is now online'
+
+# def check_planet(planet):
+#     if gt.get_planet_location(planet) == gt.add_new_planet(planet,random.randit(5,20)):
+#         return 'A planet already exists on these coordinates'
 
 def create_planet(planet, coord_x, coord_y):
     """Create a planet
@@ -51,6 +56,7 @@ def create_planet(planet, coord_x, coord_y):
     else:
      gt.add_new_planet(planet, random.randint(5, 20))
      gt.set_planet_location(planet,coord_x,coord_y)
+    return 'A new planet called ' + (planet) + ' appears.'
 
 
 def gen_broken():
@@ -76,7 +82,8 @@ def time_check(ship):
     if gt.get_when_ship_is_ready(ship) <= time.time():
         return 'The ship is ready'
     else: 
-        return 'The ship will be ready in: ',gt.get_when_ship_is_ready(ship)-time.time(), ' seconds'
+        whenisready = gt.get_when_ship_is_ready(ship)-time.time()
+        return 'The ship will be ready in: %.2f seconds' % whenisready
 
 def get_status_ship(ship):  
     """Get status of a ship
@@ -86,7 +93,7 @@ def get_status_ship(ship):
     ship: ship name (str)
 
     """    
-    return 'The ship is on: ', gt.get_ship_location(ship), 'Its speed is : ', gt.get_ship_speed(ship), 'Does it need repairs ?: ', broken_display(ship), time_check(ship)
+    return 'The ship is on: ', gt.get_ship_location(ship), ' Its speed is: ' , gt.get_ship_speed(ship) , ' Does it need repairs ?: ' , broken_display(ship), time_check(ship)
 
 def get_status_planet(planet):
     """Get status of a planet
@@ -96,30 +103,32 @@ def get_status_planet(planet):
     planet: planet name (str)
 
     """
-    return 'Location: ', gt.get_planet_location(planet), 'Resources: ', gt.get_planet_resources(planet)
+    return 'Location: ' , gt.get_planet_location(planet) , ' Resources: ' , gt.get_planet_resources(planet)
     if not gt.planet_exists(planet):
     # If the planet does not exist
         return 'This planet does not exist.'
 
-
-def math_travel(ship,planet,speed):
-    #Math the time to travel
-    send_help_ca_me_saoul
     
-def travel(ship,planet,speed):
+def travel(ship,planet):
     """Make the ship travel to another planet.
     
     Parameters
     ----------
     ship: ship name (str)
     planet: planet name(str)
-    speed: ship speed (int)
 
     """
-    
+
     if gt.is_ship_broken(ship) == False:
         (gt.get_ship_location(ship))
+        Xa,Ya = gt.get_planet_location(gt.get_ship_location(ship))
         gt.set_ship_location(ship,planet)
+        Xb,Yb = gt.get_planet_location(gt.get_ship_location(ship))
+        distance = ((Xb-Xa)**2 + (Yb-Ya)**2)**1/2
+        print(distance,Xa,Ya,Xb,Yb)
+        travel_time = distance/gt.get_ship_speed(ship)            
+        gt.set_when_ship_is_ready(ship,travel_time)
+        return 'Ship will arrive in: %.2f seconds.' % travel_time
     else:
         return 'This ship is broken.'
 
@@ -145,14 +154,14 @@ def repair(ship):
             # If resources on the planet is greater or equal to 3
                 gt.set_planet_resources(gt.get_ship_location(ship), gt.get_planet_resources(gt.get_ship_location(ship)) -3 )
                 gt.set_ship_broken(ship,0)
-                gt.set_when_ship_is_ready(ship,time.time()+60)
-                return 'Ship in repair.', time_check(ship)
+                gt.set_when_ship_is_ready(ship,time.time()+20*gt.get_ship_speed(ship))
+                return 'Ship in repair. ', time_check(ship)
             else: 
                 return 'Not enough resources on the planet to repair'
         else:
             return 'This ship is not broken'
     else:
-        return 'Your ship is not ready.'
+        return 'Your ship is not ready. Wait: ', time_check(ship), ' seconds'
 
 def upgrade(ship,nbup):
     """Upgrade a ship with the number of upgrade 
