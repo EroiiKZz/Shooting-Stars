@@ -3,9 +3,6 @@ import gaming_tools as gt
 import random
 import time
 
-#Load the main Database File
-gt._load_game_db()
-
 def restart():
     """Load game.db, reset the game and add base planets
     Aldebaran and Epislon Aurigae.
