@@ -63,11 +63,10 @@ def status_ship(ship):
 
     """    
     whenisready = gt.get_when_ship_is_ready(ship)-time.time()
-    print('The ship is on: %s ' % gt.get_ship_location(ship))
-    print('Its speed is: %d' % gt.get_ship_speed(ship))
+    print('%s is on %s and has a speed of %s parsec per second' % (ship,gt.get_ship_location(ship),gt.get_ship_speed(ship)))
     if gt.is_ship_broken(ship) == True:
     # If the ship is broken
-        print( "%s is broken and unable to move" % ship)
+        print( "/!\\"" %s is broken and unable to perform upgrades and collapsar jumps /!\\""" % ship)
     else:
         print( "%s is not broken and can move" % ship)
         if gt.get_when_ship_is_ready(ship) >= time.time():
@@ -85,9 +84,6 @@ def status_planet(planet):
 
     """
     print( '%s is at: %s and has %s resources' %(planet,gt.get_planet_location(planet), gt.get_planet_resources(planet)))
-    if not gt.planet_exists(planet):
-    # If the planet does not exist
-        print( '%s does not exist.' % planet)
     
 def travel(ship,planet):
     """Make the ship travel to another planet.
@@ -186,7 +182,9 @@ def check_win(ship):
     ship: ship name (str)
     """
     if time.time() >= gt.get_when_ship_is_ready(ship):
+    # If time is bigger or equal to ship time
         if gt.get_ship_location(ship) == "Epsilon Aurigae":
+        # If ship location isn't the same as Epsilon
             print('Congratulations %s, you win ! :)')
         else:
             print('%s is not on Epsilon Aurigae' % ship)
